@@ -2,6 +2,7 @@
 using MapViewer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -10,9 +11,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MapViewer.Migrations
 {
     [DbContext(typeof(MapViewerContext))]
-    partial class MapViewerContextModelSnapshot : ModelSnapshot
+    [Migration("20220618220119_UpdateTablesIDs")]
+    partial class UpdateTablesIDs
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -63,43 +65,6 @@ namespace MapViewer.Migrations
                     b.HasKey("ID");
 
                     b.ToTable("Places");
-
-                    b.HasData(
-                        new
-                        {
-                            ID = 1,
-                            Latitude = 55.752307999999999,
-                            Longitude = 37.610489000000001,
-                            Text = "Библиотека имени Ленина"
-                        },
-                        new
-                        {
-                            ID = 2,
-                            Latitude = 55.75226,
-                            Longitude = 37.608643999999998,
-                            Text = "Александровский сад"
-                        },
-                        new
-                        {
-                            ID = 3,
-                            Latitude = 55.750509000000001,
-                            Longitude = 37.609073000000002,
-                            Text = "Боровицкая"
-                        },
-                        new
-                        {
-                            ID = 4,
-                            Latitude = 55.755451000000001,
-                            Longitude = 37.619326999999998,
-                            Text = "Казанский собор"
-                        },
-                        new
-                        {
-                            ID = 5,
-                            Latitude = 55.749679,
-                            Longitude = 37.608711,
-                            Text = "Дом Пашкова"
-                        });
                 });
 #pragma warning restore 612, 618
         }

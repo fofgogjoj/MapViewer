@@ -1,0 +1,109 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>MapViewer</title>
+    <link type="text/css" rel="stylesheet" href="Site.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://api-maps.yandex.ru/2.1/?apikey=c5c548ac-39c9-4d26-a91b-d23f48d07b72&lang=ru_RU" type="text/javascript"></script>
+</head>
+<body>
+    <div id="welcome" style="display:none;">
+        <p>Welcome!</p>
+        <input type="button" value="Logout" id="logOut" />
+    </div>
+    <div id="loginForm">
+        <p>
+            <label>Login:</label><br />
+            <input type="text" id="login" />
+        </p>
+        <p>
+            <label>Password:</label><br />
+            <input type="password" id="password" />
+        </p>
+        <input type="submit" id="submitLogin" value="Sign in" />
+        <p>
+            <span id="error"></span>
+        </p>
+    </div>
+    <div id="canvas" style="height: 600px; width: 600px; display: none;"></div>
+    <script>
+        var tokenKey = "accessToken";
+        // при нажатии на кнопку отправки формы идет запрос к /login для получения токена
+        document.getElementById("submitLogin").addEventListener("click", async e => {
+            e.preventDefault();
+            // отправляет запрос и получаем ответ
+            const response = await fetch("api/token", {
+                method: "POST",
+                headers: { "Accept": "application/json", "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    login: document.getElementById("login").value,
+                    password: document.getElementById("password").value
+                })
+            });
+            // если запрос прошел нормально
+            if (response.ok === true) {
+                // получаем данные
+                const data = await response.json();
+                // изменяем содержимое и видимость блоков на странице
+                document.getElementById("welcome").style.display = "block";
+                document.getElementById("loginForm").style.display = "none";
+                document.getElementById("canvas").style.display = "block";
+                document.getElementById("error").textContent = "";
+                // сохраняем в хранилище sessionStorage токен доступа
+                sessionStorage.setItem(tokenKey, data);
+            }
+            else  // если произошла ошибка, получаем код статуса
+                document.getElementById("error").textContent = "Invalid credentials";
+        });
+
+        // условный выход - просто удаляем токен и меняем видимость блоков
+        document.getElementById("logOut").addEventListener("click", e => {
+
+            e.preventDefault();
+            document.getElementById("welcome").style.display = "none";
+            document.getElementById("loginForm").style.display = "block";
+            document.getElementById("canvas").style.display = "none";
+            sessionStorage.removeItem(tokenKey);
+        });
+    </script>
+
+
+    <script type="text/javascript">
+
+        ymaps.ready(function () {
+            GetMap();
+        });
+
+        function GetMap() {
+
+            // Встраиваем карты в элемент на странице и получаем объект карты
+            var map = new ymaps.Map(document.getElementById("canvas"), {
+                zoom: 15,
+                center: [55.752622, 37.617567]
+            });
+
+            $.getJSON('https://localhost:7023/api/place', function (data) {
+                // Проходим по всем данным и устанавливаем для них маркеры
+                $.each(data, function (i, item) {
+                    var marker = new ymaps.Placemark([item.latitude, item.longitude], {
+                        hintContent: item.text,
+                        balloonContent: item.text,
+                        balloonContentHeader: 'Заголовок балуна',
+                    }, {
+                        'preset': 'islands#redDotIcon'
+                    });
+                    map.geoObjects.add(marker);
+
+                })
+            });
+
+            map.geoObjects.events.add('click', function (e) {
+                // Получение ссылки на дочерний объект, на котором произошло событие.
+                var object = e.get('target');
+                object.properties._data.balloonContentHeader = '#' + Math.floor(Math.random() * 16777215).toString(16);
+            });
+        }
+    </script>
+</body>
+</html>
