@@ -8,6 +8,7 @@ namespace MapViewer
         public MapViewerContext(DbContextOptions<MapViewerContext> options)
             : base(options)
         {
+            Database.EnsureCreated();
         }
 
         public DbSet<Person> Persons { get; set; }
